@@ -1,7 +1,2 @@
 /build/*
-/CMakeLists.txt
-/.vscode/*
 /*.bmp
-/sos/*
-/*.txt
-/addpath_cuda.sh
