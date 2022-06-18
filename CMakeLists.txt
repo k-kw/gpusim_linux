@@ -59,10 +59,12 @@ cmake_minimum_required(VERSION 3.13)
 
 project(gpusim CXX)
 
+find_package(CUDA REQUIRED)
+
 include_directories(/usr/include /usr/local/include/opencv4 /usr/local/fftw3/include /home/kawamoto/cprjct/cpusim/include)
 
 link_directories(/home/kawamoto/cprjct/cpusim/sos /usr/local/lib /usr/local/fftw3/lib)
 
-add_executable(cpusim main.cpp)
+cuda_add_executable(gpusim main.cu dvcfnc.cu)
 
-target_link_libraries(cpusim libbmp_class.so libcomplex_array_class.so ${OPENCV_SO} ${FFTW3_SO})
+target_link_libraries(gpusim libbmp_class.so libcomplex_array_class.so ${OPENCV_SO} ${FFTW3_SO})

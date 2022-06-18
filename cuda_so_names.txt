@@ -117,5 +117,3 @@ libnvrtc.so
 libnvrtc.so.11.2
 libnvrtc.so.11.3.58
 libpcsamplingutil.so
-nvrtc-prev
-stubs
