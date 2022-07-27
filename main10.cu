@@ -56,7 +56,7 @@ float d = 1.87e-06;
 #define SY2 (2*SY)
 #define PADSIZE (SX2*SY2) //パディング後サイズ
 
-#define N 70000       //画像の枚数
+#define N 2       //画像の枚数
 #define CHECK_NUM N  //シミュレーション画像をチェックする番号
 
 //#define lam 532e-09  //波長
@@ -79,7 +79,7 @@ float a = 0.04;
 float b = 0.04;
 //float f = 0.001;
 //フライアイレンズのデータシートより
-float f = 0.0033;
+float f = 0.04;
 
 ////NEW
 ////SLM解像度に対する、カメラの解像度の割合
@@ -274,13 +274,13 @@ __global__ void sum_scldwn_cuda(double* out, int sx, int sy, double* in, int lx,
 
 
 //ファイルパス
-string binpath = "../../dat/bindat/1byte/fm_28_1.dat";
-string simpath = "../../dat/simdat/SLM_phase/1byte/lsd/fm/fm_4cm_4cm_3.3mm_notpad_4096x2400_samevalue_sclup_to8192x4800_sim.dat";
-string oriimg = "./test.bmp";
-string simimg = "./testsim_last.bmp";
-string scaledown = "./scdwn_last.bmp";
-string oriimgexp = "exp.bmp";
-string debug_bflens = "bfrlens.bmp";
+string binpath = "../../dat/bindat/fm_28_1.dat";
+string simpath = "../../dat/simdat/SLM_phase/1byte/lsd/build_cuda_debug.dat";
+string oriimg = "./bmps/test.bmp";
+string simimg = "./bmps/testsim_last.bmp";
+string scaledown = "./bmps/scdwn_last.bmp";
+string oriimgexp = "./bmps/exp.bmp";
+string debug_bflens = "./bmps/bfrlens.bmp";
 
 
 int main() {
