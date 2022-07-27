@@ -12,7 +12,6 @@
 #include <fstream>
 #include <string>
 
-//copy
 #include <cufft.h>
 #include <cuda_runtime.h>
 #include "device_launch_parameters.h"
@@ -20,8 +19,6 @@
 //乱数ライブラリインクルード
 #include <curand.h>
 #include <curand_kernel.h>
-//copy
-
 
 using namespace std;
 using namespace cv;
@@ -93,12 +90,10 @@ float f = 0.04;
 #define approx false    //レンズの式の近似
 #define sqr(x) ((x)*(x))
 
-//copy
 //CUDA
 #ifndef __CUDACC__
 #define __CUDACC__
 #endif 
-//copy
 
 
 //1次元のグリッドとブロック
@@ -125,7 +120,7 @@ float f = 0.04;
 #define blockx 32
 #define blocky 32
 
-dim3 grid((SX2 + blockx - 1) / blockx, (SY2 + blocky - 1) / blocky), block(blockx, blocky), grid2((SX + blockx - 1) / blockx, (SY + blocky - 1) / blocky);
+dim3 grid((SX2+blockx-1)/blockx, (SY2+blocky-1)/blocky), block(blockx, blocky), grid2((SX+blockx-1)/blockx, (SY+blocky-1)/blocky);
 
 //shared memoryは1ブロックに16KB, floatなら4096個, doubleならその半分
 
@@ -474,7 +469,6 @@ int main() {
                 bin_mat_pjr.release();
 
             }
-
             //画像データ確認
             if (k == N - 1) {
 

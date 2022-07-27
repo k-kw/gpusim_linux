@@ -44,7 +44,7 @@ using namespace std;
 //}
 
 
-//use
+//double to cuComplex
 __global__ void cusetcucomplex(cuComplex* com, double* Re, double* Im, int size)
 {
 
@@ -55,10 +55,20 @@ __global__ void cusetcucomplex(cuComplex* com, double* Re, double* Im, int size)
     }
 }
 
+// unsigned char to cuComplex
+__global__ void uc2cucomplex(cuComplex* com, unsigned char* Re, int size)
+{
+
+    int idx = blockDim.x * blockIdx.x + threadIdx.x;
+
+    if (idx < size) {
+        com[idx] = make_cuComplex((float)Re[idx], 0.0f);
+    }
+}
 
 
 
-//use
+//normalization after fft
 __global__ void normfft(cufftComplex* dev, int x, int y)
 {
     int idx = blockDim.x * blockIdx.x + threadIdx.x;
@@ -69,7 +79,7 @@ __global__ void normfft(cufftComplex* dev, int x, int y)
 }
 
 
-//use
+//2D fft
 void fft_2D_cuda_dev(int x, int y, cufftComplex* dev)
 {
     cufftHandle plan;
@@ -81,7 +91,7 @@ void fft_2D_cuda_dev(int x, int y, cufftComplex* dev)
     cufftDestroy(plan);
 }
 
-//use
+//2d inverse fft
 void ifft_2D_cuda_dev(int x, int y, cufftComplex* dev)
 {
     cufftHandle plan;
@@ -93,6 +103,7 @@ void ifft_2D_cuda_dev(int x, int y, cufftComplex* dev)
     cufftDestroy(plan);
 }
 
+//cufftcomplex to My_ComArray
 void cufftcom2mycom(My_ComArray_2D* out, cufftComplex* in, int s) {
     for (int i = 0; i < s; i++) {
         out->Re[i] = (double)cuCrealf(in[i]);
@@ -102,7 +113,7 @@ void cufftcom2mycom(My_ComArray_2D* out, cufftComplex* in, int s) {
 }
 
 
-
+//make angular spectrum method's H 
 __global__ void Hcudaf(float* Re, float* Im, int x, int y, float u, float v, float z, float lam)
 {
     int idx = blockDim.x * blockIdx.x + threadIdx.x;
@@ -114,7 +125,7 @@ __global__ void Hcudaf(float* Re, float* Im, int x, int y, float u, float v, flo
     }
 }
 
-//use
+//make angular spectrum method's H (cuComplex)
 __global__ void HcudacuCom(cuComplex* H, int x, int y, float z, float d, float lam)
 {
     int idx = blockDim.x * blockIdx.x + threadIdx.x;
