@@ -1,3 +1,7 @@
 /build/*
+/*.txt
+/sos/*
 /*.bmp
+/garbage/*
 /.vscode/*
+/bmps/*

@@ -12,7 +12,6 @@
 #include <fstream>
 #include <string>
 
-//copy
 #include <cufft.h>
 #include <cuda_runtime.h>
 #include "device_launch_parameters.h"
@@ -20,8 +19,6 @@
 //乱数ライブラリインクルード
 #include <curand.h>
 #include <curand_kernel.h>
-//copy
-
 
 using namespace std;
 using namespace cv;
@@ -56,7 +53,7 @@ float d = 1.87e-06;
 #define SY2 (2*SY)
 #define PADSIZE (SX2*SY2) //パディング後サイズ
 
-#define N 70000       //画像の枚数
+#define N 2       //画像の枚数
 #define CHECK_NUM N  //シミュレーション画像をチェックする番号
 
 //#define lam 532e-09  //波長
@@ -79,7 +76,7 @@ float a = 0.04;
 float b = 0.04;
 //float f = 0.001;
 //フライアイレンズのデータシートより
-float f = 0.0033;
+float f = 0.04;
 
 ////NEW
 ////SLM解像度に対する、カメラの解像度の割合
@@ -93,12 +90,10 @@ float f = 0.0033;
 #define approx false    //レンズの式の近似
 #define sqr(x) ((x)*(x))
 
-//copy
 //CUDA
 #ifndef __CUDACC__
 #define __CUDACC__
 #endif 
-//copy
 
 
 //1次元のグリッドとブロック
@@ -125,7 +120,7 @@ float f = 0.0033;
 #define blockx 32
 #define blocky 32
 
-dim3 grid((SX2 + blockx - 1) / blockx, (SY2 + blocky - 1) / blocky), block(blockx, blocky), grid2((SX + blockx - 1) / blockx, (SY + blocky - 1) / blocky);
+dim3 grid((SX2+blockx-1)/blockx, (SY2+blocky-1)/blocky), block(blockx, blocky), grid2((SX+blockx-1)/blockx, (SY+blocky-1)/blocky);
 
 //shared memoryは1ブロックに16KB, floatなら4096個, doubleならその半分
 
@@ -274,13 +269,13 @@ __global__ void sum_scldwn_cuda(double* out, int sx, int sy, double* in, int lx,
 
 
 //ファイルパス
-string binpath = "../../dat/bindat/1byte/fm_28_1.dat";
-string simpath = "../../dat/simdat/SLM_phase/1byte/lsd/fm/test_sim.dat";
-string oriimg = "./test.bmp";
-string simimg = "./testsim_last.bmp";
-string scaledown = "./scdwn_last.bmp";
-string oriimgexp = "exp.bmp";
-string debug_bflens = "bfrlens.bmp";
+string binpath = "../../dat/bindat/fm_28_1.dat";
+string simpath = "../../dat/simdat/SLM_phase/1byte/lsd/build_cuda_debug.dat";
+string oriimg = "./bmps/test.bmp";
+string simimg = "./bmps/testsim_last.bmp";
+string scaledown = "./bmps/scdwn_last.bmp";
+string oriimgexp = "./bmps/exp.bmp";
+string debug_bflens = "./bmps/bfrlens.bmp";
 
 
 int main() {
@@ -474,7 +469,6 @@ int main() {
                 bin_mat_pjr.release();
 
             }
-
             //画像データ確認
             if (k == N - 1) {
 

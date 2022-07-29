@@ -9,15 +9,11 @@
 #include "complex_array_class.h"
 #include "dvcfnc.cuh"
 
-
-
-
-
 //乱数ライブラリインクルード
 #include <curand.h>
 #include <curand_kernel.h>
 
-
+typedef unsigned char uc;
 
 using namespace std;
 
@@ -44,7 +40,7 @@ using namespace std;
 //}
 
 
-//use
+//double to cuComplex
 __global__ void cusetcucomplex(cuComplex* com, double* Re, double* Im, int size)
 {
 
@@ -55,10 +51,23 @@ __global__ void cusetcucomplex(cuComplex* com, double* Re, double* Im, int size)
     }
 }
 
+// unsigned char to cuComplex
+// num thread
+__global__ void uc2cucomplex(cuComplex* com, uc* Re, int num, int size)
+{
+
+    int idx = blockDim.x * blockIdx.x + threadIdx.x;
+
+    if (idx < num) {
+        for(int j=0; j<size; j++){
+            com[idx*size+j] = make_cuComplex((float)Re[idx*size+j], 0.0f);
+        }
+    }
+}
 
 
 
-//use
+//normalization after fft 2d
 __global__ void normfft(cufftComplex* dev, int x, int y)
 {
     int idx = blockDim.x * blockIdx.x + threadIdx.x;
@@ -68,8 +77,87 @@ __global__ void normfft(cufftComplex* dev, int x, int y)
     }
 }
 
+// calculate power and normalization after fft 1d
+// num thread
+__global__ void pow_norm_fft1d(uc* pow, cufftComplex* dev, int num, int size)
+{
+    int idx = blockDim.x * blockIdx.x + threadIdx.x;
 
-//use
+    if (idx < num) {
+        for(int j=0; j<size; j++){
+            pow[idx*size+j] = (uc)round(sqrt(sqr(cuCrealf(dev[idx*size+j]))+sqr(cuCimagf(dev[idx*size+j])))/size);
+        }
+    }
+}
+
+
+// signal process 1d
+// LPF
+// 高周波領域から何％カットするか(cutrate)
+// 計算自体は周波数シフトしていない状態を想定 
+__global__ void LPF(cuComplex* dev, float cutrate, int num, int size)
+{
+    int idx = blockDim.x * blockIdx.x + threadIdx.x;
+
+    if (idx < num) {
+        int strt=(size/2)*(1-cutrate), end=(size/2)*(1+cutrate);
+
+        for(int j=strt; j<end; j++){
+            dev[idx*size+j] = make_cuComplex(0.0f, 0.0f);
+        }
+    }
+}
+
+// HPF
+// 低周波領域から何％カットするか(cutrate)
+// 計算自体は周波数シフトしていない状態を想定 
+__global__ void HPF(cuComplex* dev, float cutrate, int num, int size)
+{
+    int idx = blockDim.x * blockIdx.x + threadIdx.x;
+
+    if (idx < num) {
+        int end=(size/2)*cutrate;
+
+        for(int j=0; j<end; j++){
+            dev[idx*size+j] = make_cuComplex(0.0f, 0.0f);
+            dev[idx*size+(size-1-j)] = make_cuComplex(0.0f, 0.0f);
+        }
+    }
+}
+
+
+
+//1D fft complex2complex 
+// xはデータサイズ
+void fft_1D_C2C(int x, cufftComplex*dev, int batch)
+{
+    cufftHandle plan;
+    cufftPlan1d(&plan, x, CUFFT_C2C, batch);
+    cufftExecC2C(plan, dev, dev, CUFFT_FORWARD);
+    cufftDestroy(plan);
+}
+
+void ifft_1D_C2C(int x, cufftComplex*dev, int batch)
+{
+    cufftHandle plan;
+    cufftPlan1d(&plan, x, CUFFT_C2C, batch);
+    cufftExecC2C(plan, dev, dev, CUFFT_INVERSE);
+    cufftDestroy(plan);
+}
+
+
+// R2C 使えるとメモリ食わないかも？
+// //1D fft real2complex
+// void fft_1D_R2C(int x, cufftComplex*dev, int batch)
+// {
+//     cufftHandle plan;
+//     cufftPlan1d(&plan, x, CUFFT_R2C, batch);
+//     cufftExecC2C(plan, dev, dev, CUFFT_FORWARD);
+//     cufftDestroy(plan);
+// }
+
+
+//2d fft complex2complex
 void fft_2D_cuda_dev(int x, int y, cufftComplex* dev)
 {
     cufftHandle plan;
@@ -81,7 +169,7 @@ void fft_2D_cuda_dev(int x, int y, cufftComplex* dev)
     cufftDestroy(plan);
 }
 
-//use
+//2d inverse fft complex2complex
 void ifft_2D_cuda_dev(int x, int y, cufftComplex* dev)
 {
     cufftHandle plan;
@@ -93,6 +181,7 @@ void ifft_2D_cuda_dev(int x, int y, cufftComplex* dev)
     cufftDestroy(plan);
 }
 
+//cufftcomplex to My_ComArray
 void cufftcom2mycom(My_ComArray_2D* out, cufftComplex* in, int s) {
     for (int i = 0; i < s; i++) {
         out->Re[i] = (double)cuCrealf(in[i]);
@@ -102,7 +191,7 @@ void cufftcom2mycom(My_ComArray_2D* out, cufftComplex* in, int s) {
 }
 
 
-
+//make angular spectrum method's H 
 __global__ void Hcudaf(float* Re, float* Im, int x, int y, float u, float v, float z, float lam)
 {
     int idx = blockDim.x * blockIdx.x + threadIdx.x;
@@ -114,7 +203,7 @@ __global__ void Hcudaf(float* Re, float* Im, int x, int y, float u, float v, flo
     }
 }
 
-//use
+//make angular spectrum method's H (cuComplex)
 __global__ void HcudacuCom(cuComplex* H, int x, int y, float z, float d, float lam)
 {
     int idx = blockDim.x * blockIdx.x + threadIdx.x;

@@ -1,9 +1,5 @@
-# cuda_Cplus
-「Cplus_sim」リポジトリのコードはCPUを使って光学系を想定した数値計算を行いますが，このリポジトリはCUDAを使ったGPUによる計算を行います．
+# gpusim_linux
+CUDAを使ったGPUによる光学数値計算
 ## Overview
-「myinclude」はインクルードディレクトリです．
-
-特に「myinclude/dvcfnc.cuh」にCUDAのデバイス側(GPU)で実行可能な関数宣言をまとめています．定義は「dvcfnc.cu」にあります．
-「main10.cu」がメイン関数です．
-
-「garbage」内のものは使っていません．
+include:インクルードディレクトリ
+main10.cuの実行には「bmpclass_linux」リポジトリのlibbmp_class.soと「cmparyclass_linux」リポジトリのlibcomplex_array_class.soが必要
