@@ -61,9 +61,9 @@ project(gpusim CXX)
 
 find_package(CUDA REQUIRED)
 
-include_directories(/usr/include /usr/local/include/opencv4 /usr/local/fftw3/include /home/kawamoto/cprjct/cpusim/include)
+include_directories(/usr/include /usr/local/include/opencv4 /usr/local/fftw3/include /home/kawamoto/cprjct/gpusim/include)
 
-link_directories(/home/kawamoto/cprjct/cpusim/sos /usr/local/lib /usr/local/fftw3/lib)
+link_directories(/home/kawamoto/cprjct/gpusim/sos /usr/local/lib /usr/local/fftw3/lib)
 
 cuda_add_executable(gpusim main.cu dvcfnc.cu)
 
